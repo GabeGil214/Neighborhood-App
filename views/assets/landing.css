@@ -7,3 +7,35 @@ html, body {
 #map {
   height: 100%;
 }
+
+#navBar {
+  background-color: rgb(225,125,125);
+  text-align: center;
+  padding: 5px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 18px;
+  color: rgb(245,245,245);
+}
+
+#navBar p{
+  padding: 0;
+  margin-bottom: 0;
+  font-family: 'Oswald', sans-serif;
+  font-size: 18px;
+  color: rgb(245,245,245);
+}
+
+#navBar a{
+  font-family: 'Oswald', sans-serif;
+  font-size: 18px;
+  color: rgb(245,245,245);
+}
+
+#btn {
+  background-color: rgb(225,125,125);
+  color: rgb(245,245,245);
+}
+
+#dropdown-menu {
+  background-color: rgb(225,125,125);
+}

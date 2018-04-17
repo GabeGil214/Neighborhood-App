@@ -20,11 +20,10 @@ var model = {
     name: 'The Pike Restaurant and Bar',
     position: {lat: 33.7715738, lng: -118.1713228}
   }
-
 ]};
 
-var apiKey = 'oR5y8Acjr1VUeppANFBlkgEfn22N6xMfDS6NxdlEEbf7zcQjmkf1w6LAQaWrzP_k7lpGUjQcOSdwsaK4F0mJkzF8WvcX_IioVwMx9JOjP6QPHCK3hIJw1sQrCLaoWXYx';
-
+var CLIENT_ID = "BIMM0WEA0MMGP4L413Z4UXGMUYPC24HVJG43X3CBUFHPKPT5"
+var CLIENT_SECRET = "D0XZYUATE3SR0DTXFJM5JMNOCJ5SIDEM0V01NRQW5HZ4QCXW"
 
 var ViewModel = function(){
     var self = this;
@@ -32,7 +31,10 @@ var ViewModel = function(){
 
     var map = ko.observable(new google.maps.Map(document.getElementById('map'), {
       center: {lat: 33.770208, lng: -118.1561095},
-      zoom: 13
+      zoom: 13,
+      MapTypeControlOptions: {
+        postion: 'TOP-RIGHT'
+      }
     }));
 
     this.markerList = ko.observableArray([]);
@@ -50,33 +52,37 @@ var ViewModel = function(){
 
     self.markerList().forEach(function(marker, idx){
       marker.addListener('click', function(){
-        openWindow(marker, infoWindow);
-        getInfo(idx)
+        var url = "https://api.foursquare.com/v2/venues/search?ll=" + model.locations[idx].position.lat + "," + model.locations[idx].position.lng + "&query=" + model.locations[idx].name + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET + "&v=20180411";
+        var settings = {
+        "async": true,
+        "dataType": "json",
+        "crossDomain": true,
+        "url": url,
+        "method": "GET"
+      }
+        $.ajax(settings).done(data => {
+          var info = data.response.venues[0];
+          openWindow(marker, infoWindow, info);
+        }).fail(response => {
+          console.log(response)
+        })
       });
     });
 
-    function openWindow(marker, infoWindow){
-      infoWindow.setContent(marker.title);
-      infoWindow.open(map(), marker)
+    function openWindow(marker, infoWindow, info){
+      if(infoWindow.getContent()){
+        //Check if an infoWindow has already been opened
+        //Store infoWindow div element in container div
+        var content = infoWindow.getContent()
+        var container = $(".container").html(content)
+        infoWindow.close()
+      } else {
+        //Populate infoWindow div if no other infoWindow has been opened
+        var window = $("#infoWindow").text(info.name);
+      }
+      //Set content of info window to div element infoWindow
+      window = $("#infoWindow").text(info.name);
+      infoWindow.setContent(window[0]);
+      infoWindow.open(map(), marker);
     }
-
-};
-
-function getInfo(idx){
-  var url = "https://api.yelp.com/v3/businesses/search?latitude=" + model.locations[idx].position.lat + '&longitude=' + model.locations[idx].position.lng;
-  var settings = {
-  "async": true,
-  "dataType": "jsonp",
-  "crossDomain": true,
-  "url": "https://api.yelp.com/v3/businesses/search?=&latitude=33.7715737&longitude=-118.1559124",
-  "method": "GET",
-  "headers": {
-    "Authorization": "Bearer oR5y8Acjr1VUeppANFBlkgEfn22N6xMfDS6NxdlEEbf7zcQjmkf1w6LAQaWrzP_k7lpGUjQcOSdwsaK4F0mJkzF8WvcX_IioVwMx9JOjP6QPHCK3hIJw1sQrCLaoWXYx",
-    "Cache-Control": "no-cache",
-    "Postman-Token": "e02303f2-1432-4751-af81-809911c109bf"
-  }
-}
-  $.ajax(settings).done(data => {
-    console.log(data);
-  });
 };
