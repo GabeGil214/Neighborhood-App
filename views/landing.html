@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+  <script
+  type='text/javascript'
+  src='./app.js'></script>
+  <script type="text/javascript"
+  src='https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js'></script>
   <link href="./assets/landing.css" rel="stylesheet" type="text/css" />
   <link href="https://fonts.googleapis.com/css?family=Oswald:600" rel="stylesheet"/>
   <link rel="stylesheet"
@@ -22,41 +31,34 @@
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Dropdown
           </a>
-          <div id="dropdown-menu" class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a data-bind="text: name" class="dropdown-item" href="#"></a>
-            <a class="dropdown-item" href="#">Another action</a>
-            <a class="dropdown-item" href="#">Something else here</a>
-          </div>
+          <ul data-bind="foreach: locationList" id="dropdown-menu" class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li data-bind="text: name, visible: visible" class="dropdown-item" href="#"></li>
+          </ul>
         </li>
       </ul>
       <p class="navbar-brand">Neighborhood Map</p>
-      <form class="form-inline my-2 my-lg-0">
-        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <form id="searchBar" data-bind="submit: function(data) { searchLocations(searchInput, data)}" class="form-inline my-2 my-lg-0">
+        <input  data-bind="textInput: searchInput" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"/>
         <button id="btn" class="btn btn-light my-2 my-sm-0" type="submit">Search</button>
       </form>
     </div>
   </nav>
   <div id="map"></div>
   <div class="container">
-    <div id="infoWindow"></div>
+    <div id="infoWindow">
+      <p id="info-name"></p>
+      <p id="info-address"></p>
+      <p id="info-city"></p>
+      <img id="street-image" src="" height="200" width="200" alt="Street View"/>
+    </div>
   </div>
-  <script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
-  <script
-  type='text/javascript'
-  src='./app.js'></script>
-  <script
-  src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js'></script>
   <script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs3DBFiI0TdYHS4A4kWuyni-iEcZ9cVco&v=3&callback=ViewModel">
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs3DBFiI0TdYHS4A4kWuyni-iEcZ9cVco&v=3&callback=initMap">
   </script>
   <script
   src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"
   integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
   crossorigin="anonymous">
   </script>
-
 </body>
 </html>
