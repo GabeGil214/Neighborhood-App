@@ -46,26 +46,23 @@ function ViewModel(){
   model.locations.forEach(function(location){
     self.locationList.push(new Location(location));
   });
-  console.log(this.locationList())
-
-  function searchLocations(searchInput, data){
-    ViewModel.locationList().forEach(function(location){
-      console.log(location)
-      var name = location.name();
-      if(name.toLowerCase().search(searchInput().toLowerCase()) < 0){
-        location.visible = false;
-        console.log(location.visible)
-      }
-    })
-    console.log(locationList())
-  };
-
 };
+
 $(document).ready(function() {
   ko.applyBindings(new ViewModel());
 });
 
-
+ViewModel.searchLocations = function(searchInput, data){
+  locationList().forEach(function(location){
+    console.log(location)
+    var name = location.name();
+    if(name.toLowerCase().search(searchInput().toLowerCase()) < 0){
+      location.visible = false;
+      console.log(location.visible)
+    }
+  })
+  console.log(locationList())
+};
 
 
 
@@ -130,6 +127,3 @@ function openWindow(marker, infoWindow, info){
   infoWindow.setContent(infoDiv[0]);
   infoWindow.open(map, marker);
 }
-
-/*ko.applyBindings(locationList())
-ko was not a valid reference outside of ViewModel function*/
