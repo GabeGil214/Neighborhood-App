@@ -31,40 +31,44 @@ var googleAPI = "AIzaSyDs3DBFiI0TdYHS4A4kWuyni-iEcZ9cVco"
 var CLIENT_ID = "BIMM0WEA0MMGP4L413Z4UXGMUYPC24HVJG43X3CBUFHPKPT5"
 var CLIENT_SECRET = "D0XZYUATE3SR0DTXFJM5JMNOCJ5SIDEM0V01NRQW5HZ4QCXW"
 
+
 function Location(data){
-  this.name = ko.observable(data.name);
-  this.position = ko.observable(data.position);
-  this.visible = ko.observable(data.visible);
+  var self = this;
+  self.name = data.name;
+  self.position = data.position;
+  self.visible = ko.observable(data.visible);
 }
 
 function ViewModel(){
   var self = this;
 
-  this.searchInput = ko.observable("")
-  this.locationList = ko.observableArray([])
+  self.searchInput = ko.observable("");
+  self.locationList = [];
 
   model.locations.forEach(function(location){
     self.locationList.push(new Location(location));
   });
+
+  self.searchLocations = function(searchInput, data){
+    self.locationList.forEach(function(location){
+      console.log(location)
+      var name = location.name;
+      if(name.toLowerCase().search(searchInput().toLowerCase()) < 0){
+        location.visible = false;
+        console.log(location.visible)
+      } else {
+        location.visible = true;
+      }
+    })
+    console.log(self.locationList)
+  };
 };
+
+
 
 $(document).ready(function() {
   ko.applyBindings(new ViewModel());
 });
-
-ViewModel.searchLocations = function(searchInput, data){
-  locationList().forEach(function(location){
-    console.log(location)
-    var name = location.name();
-    if(name.toLowerCase().search(searchInput().toLowerCase()) < 0){
-      location.visible = false;
-      console.log(location.visible)
-    }
-  })
-  console.log(locationList())
-};
-
-
 
 function initMap() {
   var self = this;
@@ -88,7 +92,7 @@ function initMap() {
     }));
   });
 
-    var infoWindow = new google.maps.InfoWindow();
+  var infoWindow = new google.maps.InfoWindow();
 
   self.markerList.forEach(function(marker, idx){
     marker.addListener('click', function(){
