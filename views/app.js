@@ -3,27 +3,32 @@ var model = {
   {
     name: 'Cal State Long Beach',
     position: {lat: 33.7751381, lng: -118.1149283},
-    visible: true
+    visible: true,
+    id: 0
   },
   {
     name: 'La Taqueria Mexicana',
     position: {lat: 33.7715737, lng: -118.1559124},
-    visible: true
+    visible: true,
+    id: 1
   },
   {
     name: 'The Blind Donkey',
     position: {lat: 33.7689995, lng: -118.1887075},
-    visible: true
+    visible: true,
+    id: 2
   },
   {
     name: "Rosie's Dog Beach",
     position: {lat: 33.7551556, lng: -118.142583},
-    visible: true
+    visible: true,
+    id: 3
   },
   {
     name: 'The Pike Restaurant and Bar',
     position: {lat: 33.7715738, lng: -118.1713228},
-    visible: true
+    visible: true,
+    id: 4
   }
 ]};
 
@@ -31,49 +36,10 @@ var googleAPI = "AIzaSyDs3DBFiI0TdYHS4A4kWuyni-iEcZ9cVco"
 var CLIENT_ID = "BIMM0WEA0MMGP4L413Z4UXGMUYPC24HVJG43X3CBUFHPKPT5"
 var CLIENT_SECRET = "D0XZYUATE3SR0DTXFJM5JMNOCJ5SIDEM0V01NRQW5HZ4QCXW"
 
-
-function Location(data){
-  var self = this;
-  self.name = data.name;
-  self.position = data.position;
-  self.visible = ko.observable(data.visible);
-}
-
-function ViewModel(){
-  var self = this;
-
-  self.searchInput = ko.observable("");
-  self.locationList = [];
-
-  model.locations.forEach(function(location){
-    self.locationList.push(new Location(location));
-  });
-
-  self.searchLocations = function(searchInput, data){
-    self.locationList.forEach(function(location){
-      console.log(location)
-      var name = location.name;
-      if(name.toLowerCase().search(searchInput().toLowerCase()) < 0){
-        location.visible = false;
-        console.log(location.visible)
-      } else {
-        location.visible = true;
-      }
-    })
-    console.log(self.locationList)
-  };
-};
-
-
-
-$(document).ready(function() {
-  ko.applyBindings(new ViewModel());
-});
-
 function initMap() {
   var self = this;
   var marker;
-  this.markerList = [];
+  self.markerList = [];
 
   var map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 33.770208, lng: -118.1561095},
@@ -106,7 +72,7 @@ function initMap() {
     }
       $.ajax(settings).done(data => {
         var info = data.response.venues[0];
-        openWindow(marker, infoWindow, info);
+        openWindow(idx, infoWindow, info);
       }).fail(response => {
         console.log(response)
       })
@@ -114,7 +80,64 @@ function initMap() {
   });
 }
 
-function openWindow(marker, infoWindow, info){
+function ViewModel(){
+  var self = this;
+
+  self.searchInput = ko.observable("");
+  self.locationList = [];
+
+  model.locations.forEach(function(location){
+    self.locationList.push(new Location(location));
+  });
+
+  self.searchLocations = function(searchInput, data){
+    self.locationList.forEach(function(location){
+      var name = location.name;
+      if(name.toLowerCase().search(searchInput().toLowerCase()) < 0){
+        location.visible(false);
+        markerList[location.id].setVisible(false);
+      } else {
+        location.visible(true);
+        markerList[location.id].setVisible(true);
+      }
+    })
+  };
+
+  var infoWindow = new google.maps.InfoWindow();
+
+  self.onListClick = function(idx){
+    var location = self.locationList[idx];
+    var url = "https://api.foursquare.com/v2/venues/search?ll=" + location.position.lat + "," + location.position.lng + "&query=" + location.name + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET + "&v=20180411";
+    var settings = {
+    "async": true,
+    "dataType": "json",
+    "crossDomain": true,
+    "url": url,
+    "method": "GET"
+  }
+    $.ajax(settings).done(data => {
+      var info = data.response.venues[0];
+      openWindow(idx, infoWindow, info);
+    }).fail(response => {
+      console.log(response)
+    })
+  };
+};
+
+$(document).ready(function() {
+  ko.applyBindings(new ViewModel());
+});
+
+function Location(data){
+  var self = this;
+  self.name = data.name;
+  self.position = data.position;
+  self.visible = ko.observable(data.visible);
+  self.id = data.id;
+}
+
+function openWindow(idx, infoWindow, info){
+  var marker = markerList[idx]
   if(infoWindow.getContent()){
     //Check if an infoWindow has already been opened
     //Store infoWindow div element in container div
