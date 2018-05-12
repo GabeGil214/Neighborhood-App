@@ -29,6 +29,42 @@ var model = {
     position: {lat: 33.7715738, lng: -118.1713228},
     visible: true,
     id: 4
+  },
+  {
+    name: 'Long Beach Airport',
+    position: {lat: 33.8167909, lng: -118.1535476},
+    visible: true,
+    id: 5
+  },
+  {
+    name: 'Bixby Park',
+    position: {lat: 33.7647885, lng: -118.1705796},
+    visible: true,
+    id: 6
+  },
+  {
+    name: 'Hole Mole',
+    position: {lat: 33.7733092, lng: -118.1630268},
+    visible: true,
+    id: 7
+  },
+  {
+    name: 'In\'n\'out',
+    position: {lat: 33.7583755, lng: -118.1216589},
+    visible: true,
+    id: 8
+  },
+  {
+    name: 'The Library Coffehouse',
+    position: {lat: 33.764282, lng: -118.154205},
+    visible: true,
+    id: 9
+  },
+  {
+    name: 'The Pike Outlets',
+    position: {lat: 33.764611, lng: -118.1962537},
+    visible: true,
+    id: 10
   }
 ]};
 
@@ -42,7 +78,7 @@ function initMap() {
   self.markerList = [];
 
   var map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 33.770208, lng: -118.1561095},
+    center: {lat: 33.784208, lng: -118.1561095},
     zoom: 13,
     MapTypeControlOptions: {
       position: 'TOP-RIGHT'
@@ -74,7 +110,7 @@ function initMap() {
         var info = data.response.venues[0];
         openWindow(idx, infoWindow, info);
       }).fail(response => {
-        console.log(response)
+        openWindow(idx, infoWindow, response);
       })
     });
   });
@@ -99,28 +135,13 @@ function ViewModel(){
       } else {
         location.visible(true);
         markerList[location.id].setVisible(true);
+        markerList[location.id].setAnimation(google.maps.Animation.DROP);
       }
     })
   };
 
-  var infoWindow = new google.maps.InfoWindow();
-
   self.onListClick = function(idx){
-    var location = self.locationList[idx];
-    var url = "https://api.foursquare.com/v2/venues/search?ll=" + location.position.lat + "," + location.position.lng + "&query=" + location.name + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET + "&v=20180411";
-    var settings = {
-    "async": true,
-    "dataType": "json",
-    "crossDomain": true,
-    "url": url,
-    "method": "GET"
-  }
-    $.ajax(settings).done(data => {
-      var info = data.response.venues[0];
-      openWindow(idx, infoWindow, info);
-    }).fail(response => {
-      console.log(response)
-    })
+    google.maps.event.trigger(markerList[idx], 'click');
   };
 };
 
@@ -136,7 +157,7 @@ function Location(data){
   self.id = data.id;
 }
 
-function openWindow(idx, infoWindow, info){
+function openWindow(idx, infoWindow, res){
   var marker = markerList[idx]
   if(infoWindow.getContent()){
     //Check if an infoWindow has already been opened
@@ -145,11 +166,20 @@ function openWindow(idx, infoWindow, info){
     var container = $(".container").html(content)
     infoWindow.close()
   }
-  //Set content of info window to div element infoWindow
-  $("#info-name").text(info.name);
-  $("#info-address").text(info.location.formattedAddress[0]);
-  $("#info-city").text(info.location.formattedAddress[1]);
-  $("#street-image").attr("src", "https://maps.googleapis.com/maps/api/streetview?size=400x400&location=" + info.location.formattedAddress[0] + info.location.formattedAddress[1] + "&key=" + googleAPI);
+  if(res.name){
+    //Set content of info window to div element infoWindow
+    $("#info-name").text(res.name);
+    $("#info-address").text(res.location.formattedAddress[0]);
+    $("#info-city").text(res.location.formattedAddress[1]);
+    $("#street-image").attr("src", "https://maps.googleapis.com/maps/api/streetview?size=400x400&location=" + res.location.formattedAddress[0] + res.location.formattedAddress[1] + "&key=" + googleAPI);
+  } else {
+    $("#info-name").text("Whoops! The Foursquare API could not be reached, check your firewall settings or try again");
+    $("#street-image").attr({
+        src: "./img/Thinking_Face_Emoji.png",
+        height: 100,
+        width: 100
+    });
+  }
   var infoDiv = $("#infoWindow")
   infoWindow.setContent(infoDiv[0]);
   infoWindow.open(map, marker);
