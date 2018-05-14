@@ -166,6 +166,7 @@ function openWindow(idx, infoWindow, res){
     var container = $(".container").html(content)
     infoWindow.close()
   }
+  //Check if foursquare API response is successful, and populate infowindow
   if(res.name){
     //Set content of info window to div element infoWindow
     $("#info-name").text(res.name);
@@ -173,6 +174,7 @@ function openWindow(idx, infoWindow, res){
     $("#info-city").text(res.location.formattedAddress[1]);
     $("#street-image").attr("src", "https://maps.googleapis.com/maps/api/streetview?size=400x400&location=" + res.location.formattedAddress[0] + res.location.formattedAddress[1] + "&key=" + googleAPI);
   } else {
+    //Handle error if foursquare API response is unsuccessful
     $("#info-name").text("Whoops! The Foursquare API could not be reached, check your firewall settings or try again");
     $("#street-image").attr({
         src: "./img/Thinking_Face_Emoji.png",
@@ -181,6 +183,9 @@ function openWindow(idx, infoWindow, res){
     });
   }
   var infoDiv = $("#infoWindow")
+  infoDiv.css({
+    display: "block"
+  });
   infoWindow.setContent(infoDiv[0]);
   infoWindow.open(map, marker);
 }
