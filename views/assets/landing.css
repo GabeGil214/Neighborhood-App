@@ -6,6 +6,8 @@ html, body {
 
 #map {
   height: 100%;
+  font-size: 24px;
+  text-align: center;
 }
 
 #navBar {
@@ -42,6 +44,8 @@ html, body {
 
 #infoWindow {
   display: none;
+  text-align: right;
+  font-size: 16px;
 }
 
 @media only screen and (max-width: 600px)  {

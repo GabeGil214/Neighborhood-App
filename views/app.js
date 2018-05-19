@@ -72,6 +72,17 @@ var googleAPI = "AIzaSyDs3DBFiI0TdYHS4A4kWuyni-iEcZ9cVco"
 var CLIENT_ID = "BIMM0WEA0MMGP4L413Z4UXGMUYPC24HVJG43X3CBUFHPKPT5"
 var CLIENT_SECRET = "D0XZYUATE3SR0DTXFJM5JMNOCJ5SIDEM0V01NRQW5HZ4QCXW"
 
+$.ajax("https://maps.googleapis.com/maps/api/js?key=AIzaSyDs3DBFiI0TdYHS4A4kWuyni-iEcZ9cVco&v=3",
+  {
+  "async": true,
+  "dataType": "jsonp",
+  "crossDomain": true,
+  "method": "GET"
+}).done(data => {
+  initMap();
+}).fail(response => {
+  $("#map").text("The Google Maps API could not be reached. Check connection or try again");
+})
 function initMap() {
   var self = this;
   var marker;
@@ -94,7 +105,11 @@ function initMap() {
     }));
   });
 
-  var infoWindow = new google.maps.InfoWindow();
+  self.infoWindow = new google.maps.InfoWindow();
+
+  self.closeWindow = function(){
+    self.infoWindow.close();
+  }
 
   self.markerList.forEach(function(marker, idx){
     marker.addListener('click', function(){
@@ -106,6 +121,11 @@ function initMap() {
       "url": url,
       "method": "GET"
     }
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function(){
+      marker.setAnimation(null);
+    }, 2000);
+
       $.ajax(settings).done(data => {
         var info = data.response.venues[0];
         openWindow(idx, infoWindow, info);
@@ -131,6 +151,7 @@ function ViewModel(){
       var name = location.name;
       if(name.toLowerCase().search(searchInput().toLowerCase()) < 0){
         location.visible(false);
+        closeWindow();
         markerList[location.id].setVisible(false);
       } else {
         location.visible(true);
@@ -141,6 +162,7 @@ function ViewModel(){
   };
 
   self.onListClick = function(idx){
+    markerList[idx].setAnimation(google.maps.Animation.BOUNCE);
     google.maps.event.trigger(markerList[idx], 'click');
   };
 };
